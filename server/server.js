@@ -20,10 +20,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 // Static files - HTML fayllarni serve qilish (admin.html uchun)
 app.use(express.static(path.join(__dirname, '..')))
-app.use('/admin', express.static(path.join(__dirname, '..')))
+app.use('/admin', express.static(path.join(__dirname, './admin')))
 
 // Orders JSON fayl yo'li
-const ORDERS_FILE = path.join(__dirname, '../data/orders.json')
+const ORDERS_FILE = path.join(__dirname, './data/orders.json')
 
 // Orders faylini tekshirish va yaratish
 async function ensureOrdersFile() {
@@ -282,12 +282,9 @@ app.get('/', (req, res) => {
 app.get('/admin', (req, res) => {
 	res.sendFile(path.join(__dirname, './admin.html'))
 })
-
-// Admin.js file serve qilish
-app.get('/admin.js', (req, res) => {
-	res.sendFile(path.join(__dirname, './admin.js'))
+app.get('/admin', (req, res) => {
+	res.sendFile(path.join(__dirname, 'admin', 'admin.html'))
 })
-
 // Server ishga tushirish
 async function startServer() {
 	try {

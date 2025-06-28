@@ -48,7 +48,7 @@ async function checkServerStatus() {
 		if (response.ok) {
 			document.getElementById('statusDot').className =
 				'w-3 h-3 bg-green-500 rounded-full'
-			document.getElementById('statusText').textContent = 'Server online'
+			document.getElementById('statusText').textContent = 'Website ishlamoqda'
 			console.log('✅ Server is online')
 			return true
 		} else {

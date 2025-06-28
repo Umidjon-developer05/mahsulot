@@ -1,75 +1,21 @@
 {
-	"orders": [
-		{
-			"id": "9365558959_1751123865550",
-			"orderId": 1751123865550,
-			"phoneId": "9365558959",
-			"customerName": "umidjon",
-			"customerPhone": "9365558959",
-			"address": "asd",
-			"products": [
-				{
-					"name": "iPhone 14 Pro",
-					"price": 15000000,
-					"quantity": 1
-				},
-				{
-					"name": "Samsung Galaxy S23",
-					"price": 12000000,
-					"quantity": 1
-				},
-				{
-					"name": "MacBook Pro M2",
-					"price": 25000000,
-					"quantity": 1
-				}
-			],
-			"totalAmount": 52000000,
-			"notes": "asdasd",
-			"status": "new",
-			"orderDate": "2025-06-28T15:17:45.550Z"
-		},
-		{
-			"id": "123123123_1751123801412",
-			"orderId": 1751123801412,
-			"phoneId": "123123123",
-			"customerName": "sadasdasd",
-			"customerPhone": "123123123",
-			"address": "adssadas",
-			"products": [
-				{
-					"name": "Samsung Galaxy S23",
-					"price": 12000000,
-					"quantity": 1
-				},
-				{
-					"name": "MacBook Pro M2",
-					"price": 25000000,
-					"quantity": 1
-				}
-			],
-			"totalAmount": 37000000,
-			"notes": "d2131231",
-			"status": "new",
-			"orderDate": "2025-06-28T15:16:41.412Z"
-		}
-	],
-	"lastUpdated": "2025-06-28T15:17:45.551Z",
-	"metadata": {
-		"version": "1.0",
-		"description": "TechStore buyurtmalari",
-		"fields": {
-			"id": "Telefon raqami + timestamp asosida unique ID",
-			"orderId": "Ko'rsatish uchun raqamli ID",
-			"phoneId": "Tozalangan telefon raqami",
-			"customerName": "Mijoz ismi",
-			"customerPhone": "Telefon raqami",
-			"address": "Manzil",
-			"products": "Buyurtma qilingan mahsulotlar",
-			"totalAmount": "Jami summa",
-			"status": "Buyurtma holati (new, processing, completed, cancelled)",
-			"orderDate": "Buyurtma sanasi (ISO format)"
-		},
-		"totalOrders": 2
-	}
+  "orders": [],
+  "lastUpdated": "2025-06-28T16:27:18.746Z",
+  "metadata": {
+    "version": "1.0",
+    "description": "TechStore buyurtmalari",
+    "fields": {
+      "id": "Telefon raqami + timestamp asosida unique ID",
+      "orderId": "Ko'rsatish uchun raqamli ID",
+      "phoneId": "Tozalangan telefon raqami",
+      "customerName": "Mijoz ismi",
+      "customerPhone": "Telefon raqami",
+      "address": "Manzil",
+      "products": "Buyurtma qilingan mahsulotlar",
+      "totalAmount": "Jami summa",
+      "status": "Buyurtma holati (new, processing, completed, cancelled)",
+      "orderDate": "Buyurtma sanasi (ISO format)"
+    },
+    "totalOrders": 0
+  }
 }
