@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahsulotlar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen fixed inset-0 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 text-lg">Mahsulotlar yuklanmoqda...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-lg sticky top-0 z-40">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+
+                    <!-- Search Bar -->
+                    <div class="relative  w-full mx-auto">
+                        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Mahsulotlarni qidiring..."
+                            class="search-input w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 focus:outline-none text-lg shadow-lg" />
+                    </div>
+                </div>
+        </header>
+
+        <div class="container mx-auto px-4 py-8">
+            <!-- Categories -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="mr-2 h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                        </path>
+                    </svg>
+                    Kategoriyalar
+                </h2>
+                <div id="categoriesContainer" class="flex flex-wrap gap-4 justify-center">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="mb-8">
+                <h2 id="productsTitle" class="text-2xl font-bold text-gray-800 mb-6">Mahsulotlar</h2>
+                <div id="productsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Products will be populated by JavaScript -->
+                </div>
+
+                <!-- No Products Found -->
+                <div id="noProductsFound" class="hidden text-center py-16">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Mahsulot topilmadi</h3>
+                    <p class="text-gray-500">Boshqa kalit so'z bilan qidirib ko'ring</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-12 mt-16">
+            <div class="container mx-auto px-4 text-center">
+                <h3 class="text-2xl font-bold mb-4">Mahsulotlar</h3>
+                <p class="text-gray-400 mb-4">Eng yaxshi mahsulotlar bizda </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Biz haqimizda</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Aloqa</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Yordam</a>
+                </div>
+
+            </div>
+        </footer>
+    </div>
+    <script src="./script.js"></script>
+
+</body>
+
+</html>
