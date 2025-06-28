@@ -275,17 +275,17 @@ app.get('/api/stats', async (req, res) => {
 
 // Root route - index.html ga yo'naltirish
 app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, '../index.html'))
+	res.sendFile(path.join(__dirname, './index.html'))
 })
 
 // Admin panel route
 app.get('/admin', (req, res) => {
-	res.sendFile(path.join(__dirname, '../admin.html'))
+	res.sendFile(path.join(__dirname, './admin.html'))
 })
 
 // Admin.js file serve qilish
 app.get('/admin.js', (req, res) => {
-	res.sendFile(path.join(__dirname, '../admin.js'))
+	res.sendFile(path.join(__dirname, './admin.js'))
 })
 
 // Server ishga tushirish
