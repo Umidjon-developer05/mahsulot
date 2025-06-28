@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyurtma berish - TechStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Buyurtma berish</h1>
+                <p class="text-white/80">Ma'lumotlaringizni to'ldiring</p>
+            </div>
+
+            <div class="glass-effect rounded-2xl p-8 animate-fadeIn">
+                <form id="orderForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">
+                                Ismingiz *
+                            </label>
+                            <input type="text" id="customerName"
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                placeholder="Ismingizni kiriting" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-white/90 text-sm font-medium mb-2">
+                                Telefon raqami *
+                            </label>
+                            <input type="tel" id="customerPhone"
+                                class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                placeholder="+998901234567" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">
+                            Manzil *
+                        </label>
+                        <textarea id="customerAddress" rows="3"
+                            class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            placeholder="To'liq manzilingizni kiriting" required></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">
+                            Mahsulot tanlang *
+                        </label>
+                        <select id="selectedProduct"
+                            class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                            required>
+                            <option value="">Mahsulotni tanlang</option>
+                            <option value="1">iPhone 14 Pro - 15,000,000 so'm</option>
+                            <option value="2">Samsung Galaxy S23 - 12,000,000 so'm</option>
+                            <option value="3">MacBook Pro M2 - 25,000,000 so'm</option>
+                            <option value="4">Dell XPS 13 - 18,000,000 so'm</option>
+                            <option value="5">Sony WH-1000XM4 - 4,500,000 so'm</option>
+                            <option value="6">AirPods Pro - 3,200,000 so'm</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">
+                            Miqdor
+                        </label>
+                        <input type="number" id="quantity" min="1" value="1"
+                            class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50">
+                    </div>
+
+                    <div>
+                        <label class="block text-white/90 text-sm font-medium mb-2">
+                            Qo'shimcha izoh
+                        </label>
+                        <textarea id="orderNotes" rows="3"
+                            class="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            placeholder="Qo'shimcha ma'lumotlar (ixtiyoriy)"></textarea>
+                    </div>
+
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-medium">Jami summa:</span>
+                            <span id="totalAmount" class="text-white font-bold text-xl">0 so'm</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-white text-purple-600 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all duration-300 transform hover:scale-105">
+                        Buyurtma berish
+                    </button>
+                </form>
+            </div>
+
+            <div class="text-center mt-6">
+                <a href="index.html" class="text-white/80 hover:text-white underline">
+                    ← Asosiy sahifaga qaytish
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="glass-effect rounded-2xl p-8 w-full max-w-md text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h3 class="text-2xl font-bold text-white mb-4">Buyurtma qabul qilindi!</h3>
+            <p class="text-white/80 mb-6">Tez orada siz bilan bog'lanamiz</p>
+            <button id="closeSuccessModal"
+                class="bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold hover:bg-white/90 transition-colors">
+                Yaxshi
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Product data
+        const products = {
+            1: { name: 'iPhone 14 Pro', price: 15000000 },
+            2: { name: 'Samsung Galaxy S23', price: 12000000 },
+            3: { name: 'MacBook Pro M2', price: 25000000 },
+            4: { name: 'Dell XPS 13', price: 18000000 },
+            5: { name: 'Sony WH-1000XM4', price: 4500000 },
+            6: { name: 'AirPods Pro', price: 3200000 }
+        };
+
+        // DOM elements
+        const orderForm = document.getElementById('orderForm');
+        const selectedProduct = document.getElementById('selectedProduct');
+        const quantity = document.getElementById('quantity');
+        const totalAmount = document.getElementById('totalAmount');
+        const successModal = document.getElementById('successModal');
+
+        // Event listeners
+        selectedProduct.addEventListener('change', updateTotal);
+        quantity.addEventListener('input', updateTotal);
+        orderForm.addEventListener('submit', handleOrderSubmit);
+        document.getElementById('closeSuccessModal').addEventListener('click', closeSuccessModal);
+
+        // Update total amount
+        function updateTotal() {
+            const productId = selectedProduct.value;
+            const qty = parseInt(quantity.value) || 1;
+
+            if (productId && products[productId]) {
+                const total = products[productId].price * qty;
+                totalAmount.textContent = formatPrice(total);
+            } else {
+                totalAmount.textContent = '0 so\'m';
+            }
+        }
+
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('uz-UZ').format(price) + " so'm";
+        }
+
+        // Handle order submission
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+
+            const formData = new FormData(orderForm);
+            const productId = selectedProduct.value;
+            const qty = parseInt(quantity.value) || 1;
+
+            if (!productId || !products[productId]) {
+                alert('Iltimos, mahsulotni tanlang!');
+                return;
+            }
+
+            const orderData = {
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                address: document.getElementById('customerAddress').value,
+                products: [{
+                    name: products[productId].name,
+                    price: products[productId].price,
+                    quantity: qty
+                }],
+                totalAmount: products[productId].price * qty,
+                notes: document.getElementById('orderNotes').value
+            };
+
+            // Save order to localStorage
+            saveOrder(orderData);
+
+            // Show success modal
+            successModal.classList.remove('hidden');
+
+            // Reset form
+            orderForm.reset();
+            updateTotal();
+        }
+
+        // Save order to localStorage
+        function saveOrder(orderData) {
+            let orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+
+            const newOrder = {
+                id: Date.now(),
+                ...orderData,
+                status: 'new',
+                orderDate: new Date()
+            };
+
+            orders.unshift(newOrder);
+            localStorage.setItem('techstore_orders', JSON.stringify(orders));
+        }
+
+        // Close success modal
+        function closeSuccessModal() {
+            successModal.classList.add('hidden');
+        }
+
+        // Initialize
+        updateTotal();
+    </script>
+</body>
+
+</html>
