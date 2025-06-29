@@ -1,21 +1,21 @@
 {
-  "orders": [],
-  "lastUpdated": "2025-06-28T16:27:18.746Z",
-  "metadata": {
-    "version": "1.0",
-    "description": "TechStore buyurtmalari",
-    "fields": {
-      "id": "Telefon raqami + timestamp asosida unique ID",
-      "orderId": "Ko'rsatish uchun raqamli ID",
-      "phoneId": "Tozalangan telefon raqami",
-      "customerName": "Mijoz ismi",
-      "customerPhone": "Telefon raqami",
-      "address": "Manzil",
-      "products": "Buyurtma qilingan mahsulotlar",
-      "totalAmount": "Jami summa",
-      "status": "Buyurtma holati (new, processing, completed, cancelled)",
-      "orderDate": "Buyurtma sanasi (ISO format)"
-    },
-    "totalOrders": 0
-  }
+	"orders": [],
+	"lastUpdated": "2025-06-28T16:27:18.746Z",
+	"metadata": {
+		"version": "1.0",
+		"description": "TechStore buyurtmalari",
+		"fields": {
+			"id": "Telefon raqami + timestamp asosida unique ID",
+			"orderId": "Ko'rsatish uchun raqamli ID",
+			"phoneId": "Tozalangan telefon raqami",
+			"customerName": "Mijoz ismi",
+			"customerPhone": "Telefon raqami",
+			"address": "Manzil",
+			"products": "Buyurtma qilingan mahsulotlar",
+			"totalAmount": "Jami summa",
+			"status": "Buyurtma holati (new, processing, completed, cancelled)",
+			"orderDate": "Buyurtma sanasi (ISO format)"
+		},
+		"totalOrders": 0
+	}
 }

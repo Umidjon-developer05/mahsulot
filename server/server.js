@@ -8,7 +8,6 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 // Middleware
-// CORS konfiguratsiyasini yangilash
 app.use(
 	cors({
 		origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
@@ -18,50 +17,64 @@ app.use(
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// Static files - HTML fayllarni serve qilish (admin.html uchun)
+// Static files
 app.use(express.static(path.join(__dirname, '..')))
 app.use('/admin', express.static(path.join(__dirname, './admin')))
 
-// Orders JSON fayl yo'li
+// File paths
 const ORDERS_FILE = path.join(__dirname, './data/orders.json')
+const PRODUCTS_FILE = path.join(__dirname, './data/products.json')
 
-// Orders faylini tekshirish va yaratish
-async function ensureOrdersFile() {
+// Ensure files exist
+async function ensureDataFiles() {
 	try {
+		// Orders file
 		await fs.ensureFile(ORDERS_FILE)
-		const stats = await fs.stat(ORDERS_FILE)
-
-		if (stats.size === 0) {
-			const initialData = {
+		const ordersStats = await fs.stat(ORDERS_FILE)
+		if (ordersStats.size === 0) {
+			const initialOrdersData = {
 				orders: [],
 				lastUpdated: new Date().toISOString(),
 				metadata: {
 					version: '1.0',
 					description: 'TechStore buyurtmalari',
 					totalOrders: 0,
-					fields: {
-						id: 'Telefon raqami + timestamp asosida unique ID',
-						orderId: "Ko'rsatish uchun raqamli ID",
-						phoneId: 'Tozalangan telefon raqami',
-						customerName: 'Mijoz ismi',
-						customerPhone: 'Telefon raqami',
-						address: 'Manzil',
-						products: 'Buyurtma qilingan mahsulotlar',
-						totalAmount: 'Jami summa',
-						status: 'Buyurtma holati',
-						orderDate: 'Buyurtma sanasi',
-					},
 				},
 			}
-			await fs.writeJson(ORDERS_FILE, initialData, { spaces: 2 })
+			await fs.writeJson(ORDERS_FILE, initialOrdersData, { spaces: 2 })
 			console.log('📁 Orders.json fayli yaratildi')
 		}
+
+		// Products file
+		await fs.ensureFile(PRODUCTS_FILE)
+		const productsStats = await fs.stat(PRODUCTS_FILE)
+		if (productsStats.size === 0) {
+			const initialProductsData = {
+				products: [],
+				categories: [
+					{ id: 'telefon', name: 'Telefonlar', icon: '📱' },
+					{ id: 'kompyuter', name: 'Kompyuterlar', icon: '💻' },
+					{ id: 'audio', name: 'Audio', icon: '🎧' },
+					{ id: 'planshet', name: 'Planshetlar', icon: '📱' },
+					{ id: 'kamera', name: 'Kameralar', icon: '📷' },
+					{ id: 'soat', name: 'Smart soatlar', icon: '⌚' },
+				],
+				lastUpdated: new Date().toISOString(),
+				metadata: {
+					version: '1.0',
+					description: 'TechStore mahsulotlari',
+					totalProducts: 0,
+				},
+			}
+			await fs.writeJson(PRODUCTS_FILE, initialProductsData, { spaces: 2 })
+			console.log('📁 Products.json fayli yaratildi')
+		}
 	} catch (error) {
-		console.error('❌ Orders faylini yaratishda xatolik:', error)
+		console.error('❌ Data fayllarini yaratishda xatolik:', error)
 	}
 }
 
-// Buyurtmalarni yuklash
+// Load data functions
 async function loadOrders() {
 	try {
 		const data = await fs.readJson(ORDERS_FILE)
@@ -76,7 +89,6 @@ async function loadOrders() {
 	}
 }
 
-// Buyurtmalarni saqlash
 async function saveOrders(ordersData) {
 	try {
 		await fs.writeJson(ORDERS_FILE, ordersData, { spaces: 2 })
@@ -88,9 +100,35 @@ async function saveOrders(ordersData) {
 	}
 }
 
-// API Routes
+async function loadProducts() {
+	try {
+		const data = await fs.readJson(PRODUCTS_FILE)
+		return data
+	} catch (error) {
+		console.error('❌ Mahsulotlarni yuklashda xatolik:', error)
+		return {
+			products: [],
+			categories: [],
+			lastUpdated: new Date().toISOString(),
+			metadata: { totalProducts: 0 },
+		}
+	}
+}
 
-// Barcha buyurtmalarni olish - debug bilan
+async function saveProducts(productsData) {
+	try {
+		await fs.writeJson(PRODUCTS_FILE, productsData, { spaces: 2 })
+		console.log('✅ Mahsulotlar saqlandi:', productsData.products.length, 'ta')
+		return true
+	} catch (error) {
+		console.error('❌ Mahsulotlarni saqlashda xatolik:', error)
+		return false
+	}
+}
+
+// ORDERS API ROUTES
+
+// Get all orders
 app.get('/api/orders', async (req, res) => {
 	try {
 		console.log('📡 API Request: GET /api/orders')
@@ -115,17 +153,15 @@ app.get('/api/orders', async (req, res) => {
 	}
 })
 
-// Yangi buyurtma qo'shish
+// Create new order
 app.post('/api/orders', async (req, res) => {
 	try {
 		const orderData = req.body
 
-		// Telefon raqami asosida unique ID yaratish
 		const phoneId = orderData.customerPhone.replace(/[^0-9]/g, '')
 		const timestamp = Date.now()
 		const uniqueId = `${phoneId}_${timestamp}`
 
-		// Yangi buyurtma obyekti
 		const newOrder = {
 			id: uniqueId,
 			orderId: timestamp,
@@ -135,15 +171,11 @@ app.post('/api/orders', async (req, res) => {
 			orderDate: new Date().toISOString(),
 		}
 
-		// Mavjud buyurtmalarni yuklash
 		const ordersData = await loadOrders()
-
-		// Yangi buyurtmani qo'shish
 		ordersData.orders.unshift(newOrder)
 		ordersData.lastUpdated = new Date().toISOString()
 		ordersData.metadata.totalOrders = ordersData.orders.length
 
-		// Saqlash
 		const saved = await saveOrders(ordersData)
 
 		if (saved) {
@@ -165,7 +197,7 @@ app.post('/api/orders', async (req, res) => {
 	}
 })
 
-// Buyurtma holatini yangilash
+// Update order status
 app.put('/api/orders/:id', async (req, res) => {
 	try {
 		const orderId = req.params.id
@@ -206,7 +238,7 @@ app.put('/api/orders/:id', async (req, res) => {
 	}
 })
 
-// Buyurtmani o'chirish
+// Delete order
 app.delete('/api/orders/:id', async (req, res) => {
 	try {
 		const orderId = req.params.id
@@ -244,10 +276,168 @@ app.delete('/api/orders/:id', async (req, res) => {
 	}
 })
 
-// Statistika
+// PRODUCTS API ROUTES
+
+// Get all products
+app.get('/api/products', async (req, res) => {
+	try {
+		console.log('📡 API Request: GET /api/products')
+		const productsData = await loadProducts()
+		console.log('📊 Products found:', productsData.products.length)
+
+		res.json({
+			success: true,
+			data: productsData,
+			debug: {
+				productsCount: productsData.products.length,
+				filePath: PRODUCTS_FILE,
+				timestamp: new Date().toISOString(),
+			},
+		})
+	} catch (error) {
+		console.error('❌ API Error:', error)
+		res.status(500).json({
+			success: false,
+			error: error.message,
+		})
+	}
+})
+
+// Create new product
+app.post('/api/products', async (req, res) => {
+	try {
+		const productData = req.body
+
+		const productsData = await loadProducts()
+
+		// Generate new ID
+		const maxId =
+			productsData.products.length > 0
+				? Math.max(...productsData.products.map(p => p.id))
+				: 0
+		const newId = maxId + 1
+
+		const newProduct = {
+			id: newId,
+			...productData,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		}
+
+		productsData.products.push(newProduct)
+		productsData.lastUpdated = new Date().toISOString()
+		productsData.metadata.totalProducts = productsData.products.length
+
+		const saved = await saveProducts(productsData)
+
+		if (saved) {
+			console.log("📦 Yangi mahsulot qo'shildi:", newProduct.id)
+			res.json({
+				success: true,
+				data: newProduct,
+				message: "Mahsulot muvaffaqiyatli qo'shildi",
+			})
+		} else {
+			throw new Error('Mahsulotni saqlashda xatolik')
+		}
+	} catch (error) {
+		console.error("❌ Mahsulot qo'shishda xatolik:", error)
+		res.status(500).json({
+			success: false,
+			error: error.message,
+		})
+	}
+})
+
+// Update product
+app.put('/api/products/:id', async (req, res) => {
+	try {
+		const productId = parseInt(req.params.id)
+		const updateData = req.body
+
+		const productsData = await loadProducts()
+		const productIndex = productsData.products.findIndex(
+			product => product.id === productId
+		)
+
+		if (productIndex === -1) {
+			return res.status(404).json({
+				success: false,
+				error: 'Mahsulot topilmadi',
+			})
+		}
+
+		productsData.products[productIndex] = {
+			...productsData.products[productIndex],
+			...updateData,
+			updatedAt: new Date().toISOString(),
+		}
+		productsData.lastUpdated = new Date().toISOString()
+
+		const saved = await saveProducts(productsData)
+
+		if (saved) {
+			res.json({
+				success: true,
+				data: productsData.products[productIndex],
+				message: 'Mahsulot yangilandi',
+			})
+		} else {
+			throw new Error('Mahsulotni yangilashda xatolik')
+		}
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			error: error.message,
+		})
+	}
+})
+
+// Delete product
+app.delete('/api/products/:id', async (req, res) => {
+	try {
+		const productId = parseInt(req.params.id)
+
+		const productsData = await loadProducts()
+		const initialLength = productsData.products.length
+
+		productsData.products = productsData.products.filter(
+			product => product.id !== productId
+		)
+
+		if (productsData.products.length === initialLength) {
+			return res.status(404).json({
+				success: false,
+				error: 'Mahsulot topilmadi',
+			})
+		}
+
+		productsData.lastUpdated = new Date().toISOString()
+		productsData.metadata.totalProducts = productsData.products.length
+
+		const saved = await saveProducts(productsData)
+
+		if (saved) {
+			res.json({
+				success: true,
+				message: "Mahsulot o'chirildi",
+			})
+		} else {
+			throw new Error("Mahsulotni o'chirishda xatolik")
+		}
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			error: error.message,
+		})
+	}
+})
+
+// Statistics
 app.get('/api/stats', async (req, res) => {
 	try {
 		const ordersData = await loadOrders()
+		const productsData = await loadProducts()
 		const orders = ordersData.orders
 
 		const stats = {
@@ -258,6 +448,7 @@ app.get('/api/stats', async (req, res) => {
 			cancelledOrders: orders.filter(o => o.status === 'cancelled').length,
 			totalRevenue: orders.reduce((sum, order) => sum + order.totalAmount, 0),
 			uniqueCustomers: new Set(orders.map(o => o.customerPhone)).size,
+			totalProducts: productsData.products.length,
 			lastUpdated: ordersData.lastUpdated,
 		}
 
@@ -273,30 +464,32 @@ app.get('/api/stats', async (req, res) => {
 	}
 })
 
-// Root route - index.html ga yo'naltirish
+// Static routes
 app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, './index.html'))
 })
 
-// Admin panel route
 app.get('/admin', (req, res) => {
 	res.sendFile(path.join(__dirname, './admin.html'))
 })
 app.get('/admin', (req, res) => {
 	res.sendFile(path.join(__dirname, 'admin', 'admin.html'))
 })
-// Server ishga tushirish
+
+// Start server
 async function startServer() {
 	try {
-		await ensureOrdersFile()
+		await ensureDataFiles()
 
 		app.listen(PORT, () => {
 			console.log('🚀 TechStore Server ishga tushdi!')
 			console.log(`📍 Server manzili: http://localhost:${PORT}`)
 			console.log(`🏪 Asosiy do'kon: http://localhost:${PORT}`)
 			console.log(`⚙️  Admin panel: http://localhost:${PORT}/admin`)
-			console.log(`📊 API: http://localhost:${PORT}/api/orders`)
+			console.log(`📊 API Orders: http://localhost:${PORT}/api/orders`)
+			console.log(`📦 API Products: http://localhost:${PORT}/api/products`)
 			console.log('📁 Orders fayli:', ORDERS_FILE)
+			console.log('📁 Products fayli:', PRODUCTS_FILE)
 		})
 	} catch (error) {
 		console.error('❌ Serverni ishga tushirishda xatolik:', error)

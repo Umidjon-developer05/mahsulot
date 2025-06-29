@@ -4,16 +4,17 @@ const ADMIN_CREDENTIALS = {
 	password: 'admin123',
 }
 
-// Orders will be loaded from server API
+// Data will be loaded from server API
 let orders = []
-
-// Sample products data
-const products = []
+let products = []
+let categories = []
 
 // Current state
 let currentUser = null
 let currentTab = 'orders'
 let selectedOrder = null
+let selectedProduct = null
+let isEditingProduct = false
 
 // DOM Elements
 const loginContainer = document.getElementById('loginContainer')
@@ -23,6 +24,8 @@ const loginError = document.getElementById('loginError')
 const logoutBtn = document.getElementById('logoutBtn')
 const ordersContainer = document.getElementById('ordersContainer')
 const orderModal = document.getElementById('orderModal')
+const productModal = document.getElementById('productModal')
+const productForm = document.getElementById('productForm')
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,25 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
 	setupEventListeners()
 	checkServerStatus()
 	loadOrdersFromServer()
+	loadProductsFromServer()
 })
 
-// Check server status - yangilangan versiya
+// Check server status
 async function checkServerStatus() {
 	try {
 		console.log('🔍 Checking server status...')
-		const response = await fetch('/api/orders', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		})
-
-		console.log('🌐 Server response status:', response.status)
+		const response = await fetch('/api/orders')
 
 		if (response.ok) {
 			document.getElementById('statusDot').className =
 				'w-3 h-3 bg-green-500 rounded-full'
-			document.getElementById('statusText').textContent = 'Website ishlamoqda'
+			document.getElementById('statusText').textContent = 'Server online'
 			console.log('✅ Server is online')
 			return true
 		} else {
@@ -73,71 +70,90 @@ function checkAuthStatus() {
 	}
 }
 
-// Load orders from server API (data/orders.json) - debug bilan
+// Load orders from server API
 async function loadOrdersFromServer() {
 	try {
 		console.log('📡 Loading orders from server API...')
-		console.log('🌐 API URL:', window.location.origin + '/api/orders')
 
-		const response = await fetch('/api/orders', {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			credentials: 'same-origin',
-		})
-
-		console.log('📡 Response status:', response.status)
-		console.log('📡 Response ok:', response.ok)
+		const response = await fetch('/api/orders')
 
 		if (!response.ok) {
 			throw new Error(`HTTP error! status: ${response.status}`)
 		}
 
 		const result = await response.json()
-		console.log('📦 API Response:', result)
 
 		if (result.success) {
 			orders = result.data.orders || []
 			console.log('✅ Orders loaded from server:', orders.length, 'orders')
-			console.log('📄 Orders data:', orders)
-
-			// Update last updated time
-			if (result.data.lastUpdated) {
-				console.log('🕒 Last updated:', result.data.lastUpdated)
-			}
 		} else {
 			throw new Error(result.error || 'Failed to load orders')
 		}
 
-		// If admin panel is visible, update the display
 		if (currentUser) {
 			renderOrders()
 			updateStats()
 		}
 
-		// Update server status
 		document.getElementById('statusDot').className =
 			'w-3 h-3 bg-green-500 rounded-full'
 		document.getElementById('statusText').textContent = 'JSON fayli yuklandi'
 	} catch (error) {
 		console.error('❌ Error loading orders from server:', error)
-
-		// Update server status
 		document.getElementById('statusDot').className =
 			'w-3 h-3 bg-red-500 rounded-full'
 		document.getElementById('statusText').textContent =
 			'Server xatolik: ' + error.message
-
-		// Show detailed error
 		showNotification(
-			"❌ Server bilan bog'lanishda xatolik: " + error.message,
+			'❌ Buyurtmalarni yuklashda xatolik: ' + error.message,
 			'error'
 		)
-
 		orders = []
 		if (currentUser) {
 			renderOrders()
+			updateStats()
+		}
+	}
+}
+
+// Load products from server API
+async function loadProductsFromServer() {
+	try {
+		console.log('📡 Loading products from server API...')
+
+		const response = await fetch('/api/products')
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`)
+		}
+
+		const result = await response.json()
+
+		if (result.success) {
+			products = result.data.products || []
+			categories = result.data.categories || []
+			console.log(
+				'✅ Products loaded from server:',
+				products.length,
+				'products'
+			)
+		} else {
+			throw new Error(result.error || 'Failed to load products')
+		}
+
+		if (currentUser) {
+			renderProducts()
+			updateStats()
+		}
+	} catch (error) {
+		console.error('❌ Error loading products from server:', error)
+		showNotification(
+			'❌ Mahsulotlarni yuklashda xatolik: ' + error.message,
+			'error'
+		)
+		products = []
+		if (currentUser) {
+			renderProducts()
 			updateStats()
 		}
 	}
@@ -163,37 +179,56 @@ function setupEventListeners() {
 		.getElementById('statusFilter')
 		.addEventListener('change', filterOrders)
 
-	// Refresh orders - Server API dan yangilash
+	// Refresh buttons
 	document
 		.getElementById('refreshOrders')
 		.addEventListener('click', async () => {
-			showNotification('📡 Server dan yangilanmoqda...', 'info')
+			showNotification('📡 Buyurtmalar yangilanmoqda...', 'info')
 			await loadOrdersFromServer()
-			showNotification(
-				'✅ Buyurtmalar data/orders.json dan yangilandi!',
-				'success'
-			)
+			showNotification('✅ Buyurtmalar yangilandi!', 'success')
 		})
 
-	// Modal close
 	document
-		.getElementById('closeModal')
-		.addEventListener('click', closeOrderModal)
+		.getElementById('refreshProducts')
+		.addEventListener('click', async () => {
+			showNotification('📡 Mahsulotlar yangilanmoqda...', 'info')
+			await loadProductsFromServer()
+			showNotification('✅ Mahsulotlar yangilandi!', 'success')
+		})
 
-	// Update status button
+	// Product management
+	document
+		.getElementById('addProductBtn')
+		.addEventListener('click', openAddProductModal)
+	document
+		.getElementById('closeProductModal')
+		.addEventListener('click', closeProductModal)
+	document
+		.getElementById('cancelProductBtn')
+		.addEventListener('click', closeProductModal)
+	productForm.addEventListener('submit', handleProductSubmit)
+
+	// Order modal
+	document
+		.getElementById('closeOrderModal')
+		.addEventListener('click', closeOrderModal)
 	document
 		.getElementById('updateStatusBtn')
 		.addEventListener('click', updateOrderStatus)
-
-	// Delete order button
 	document
 		.getElementById('deleteOrderBtn')
 		.addEventListener('click', deleteOrder)
 
-	// Close modal when clicking outside
+	// Close modals when clicking outside
 	orderModal.addEventListener('click', e => {
 		if (e.target === orderModal) {
 			closeOrderModal()
+		}
+	})
+
+	productModal.addEventListener('click', e => {
+		if (e.target === productModal) {
+			closeProductModal()
 		}
 	})
 }
@@ -230,8 +265,8 @@ function showAdminPanel() {
 	loginContainer.classList.add('hidden')
 	adminPanel.classList.remove('hidden')
 	document.getElementById('adminName').textContent = currentUser.username
-	loadOrdersFromServer() // Load fresh data from server
-	renderProducts()
+	loadOrdersFromServer()
+	loadProductsFromServer()
 	startOrderMonitoring()
 }
 
@@ -316,7 +351,7 @@ function getStatusBadge(status) {
 
 // Render orders
 function renderOrders() {
-	const container = ordersContainer
+	const container = document.getElementById('ordersContainer')
 	const noOrdersDiv = document.getElementById('noOrders')
 	const statusFilter = document.getElementById('statusFilter').value
 
@@ -382,7 +417,184 @@ function filterOrders() {
 	renderOrders()
 }
 
-// Show order details
+// Render products
+function renderProducts() {
+	const container = document.getElementById('productsGrid')
+	const noProductsDiv = document.getElementById('noProducts')
+
+	if (products.length === 0) {
+		container.innerHTML = ''
+		noProductsDiv.classList.remove('hidden')
+		return
+	}
+
+	noProductsDiv.classList.add('hidden')
+
+	container.innerHTML = products
+		.map(
+			product => `
+		  <div class="product-card glass-effect rounded-xl p-6">
+			  <div class="relative mb-4">
+				  <img src="${product.image || '/placeholder.svg?height=200&width=300'}" alt="${
+				product.name
+			}" class="w-full h-48 object-cover rounded-lg">
+				  <div class="absolute top-2 right-2 flex space-x-2">
+					  <button onclick="editProduct(${
+							product.id
+						})" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg">
+						  ✏️
+					  </button>
+					  <button onclick="deleteProduct(${
+							product.id
+						})" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg">
+						  🗑️
+					  </button>
+				  </div>
+			  </div>
+			  
+			  <h3 class="text-lg font-semibold text-white mb-2">${product.name}</h3>
+			  <p class="text-white/70 mb-2">Kategoriya: ${product.category}</p>
+			  <p class="text-white/70 mb-2">Omborda: ${product.stock} ta</p>
+			  <p class="text-white font-bold text-xl mb-2">${formatPrice(product.price)}</p>
+			  
+			  ${
+					product.description
+						? `<p class="text-white/60 text-sm">${product.description}</p>`
+						: ''
+				}
+			  
+			  <div class="mt-4 text-white/50 text-xs">
+				  <p>Yaratilgan: ${formatDate(product.createdAt)}</p>
+				  ${
+						product.updatedAt !== product.createdAt
+							? `<p>Yangilangan: ${formatDate(product.updatedAt)}</p>`
+							: ''
+					}
+			  </div>
+		  </div>
+	  `
+		)
+		.join('')
+}
+
+// Product management functions
+function openAddProductModal() {
+	isEditingProduct = false
+	selectedProduct = null
+	document.getElementById('productModalTitle').textContent = "Mahsulot qo'shish"
+	document.getElementById('productSubmitText').textContent = "Mahsulot qo'shish"
+	productForm.reset()
+	productModal.classList.remove('hidden')
+}
+
+function editProduct(productId) {
+	isEditingProduct = true
+	selectedProduct = products.find(p => p.id === productId)
+	if (!selectedProduct) return
+
+	document.getElementById('productModalTitle').textContent =
+		'Mahsulotni tahrirlash'
+	document.getElementById('productSubmitText').textContent =
+		'Mahsulotni yangilash'
+
+	// Fill form with existing data
+	document.getElementById('productName').value = selectedProduct.name
+	document.getElementById('productCategory').value = selectedProduct.category
+	document.getElementById('productPrice').value = selectedProduct.price
+	document.getElementById('productStock').value = selectedProduct.stock
+	document.getElementById('productImage').value = selectedProduct.image || ''
+	document.getElementById('productDescription').value =
+		selectedProduct.description || ''
+
+	productModal.classList.remove('hidden')
+}
+
+function closeProductModal() {
+	productModal.classList.add('hidden')
+	productForm.reset()
+	isEditingProduct = false
+	selectedProduct = null
+}
+
+async function handleProductSubmit(e) {
+	e.preventDefault()
+
+	const productData = {
+		name: document.getElementById('productName').value,
+		category: document.getElementById('productCategory').value,
+		price: Number.parseInt(document.getElementById('productPrice').value),
+		stock: Number.parseInt(document.getElementById('productStock').value),
+		image: document.getElementById('productImage').value || null,
+		description: document.getElementById('productDescription').value || null,
+	}
+
+	try {
+		let response
+		if (isEditingProduct && selectedProduct) {
+			// Update existing product
+			response = await fetch(`/api/products/${selectedProduct.id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(productData),
+			})
+		} else {
+			// Create new product
+			response = await fetch('/api/products', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(productData),
+			})
+		}
+
+		const result = await response.json()
+
+		if (result.success) {
+			showNotification(
+				`✅ Mahsulot ${isEditingProduct ? 'yangilandi' : "qo'shildi"}!`,
+				'success'
+			)
+			closeProductModal()
+			await loadProductsFromServer()
+			renderProducts()
+			updateStats()
+		} else {
+			throw new Error(result.error || 'Mahsulotni saqlashda xatolik')
+		}
+	} catch (error) {
+		console.error('❌ Error saving product:', error)
+		showNotification('❌ Mahsulotni saqlashda xatolik!', 'error')
+	}
+}
+
+async function deleteProduct(productId) {
+	if (!confirm("Mahsulotni o'chirishga ishonchingiz komilmi?")) return
+
+	try {
+		const response = await fetch(`/api/products/${productId}`, {
+			method: 'DELETE',
+		})
+
+		const result = await response.json()
+
+		if (result.success) {
+			showNotification("✅ Mahsulot o'chirildi!", 'success')
+			await loadProductsFromServer()
+			renderProducts()
+			updateStats()
+		} else {
+			throw new Error(result.error || "Mahsulotni o'chirishda xatolik")
+		}
+	} catch (error) {
+		console.error('❌ Error deleting product:', error)
+		showNotification("❌ Mahsulotni o'chirishda xatolik!", 'error')
+	}
+}
+
+// Order management functions
 function showOrderDetails(orderId) {
 	selectedOrder = orders.find(order => order.id === orderId)
 	if (!selectedOrder) return
@@ -479,13 +691,11 @@ function showOrderDetails(orderId) {
 	orderModal.classList.remove('hidden')
 }
 
-// Close order modal
 function closeOrderModal() {
 	orderModal.classList.add('hidden')
 	selectedOrder = null
 }
 
-// Update order status - Server API orqali
 async function updateOrderStatus() {
 	if (!selectedOrder) return
 
@@ -506,7 +716,6 @@ async function updateOrderStatus() {
 
 		if (result.success) {
 			console.log('✅ Order status updated successfully')
-			// Reload orders from server
 			await loadOrdersFromServer()
 			renderOrders()
 			closeOrderModal()
@@ -523,7 +732,6 @@ async function updateOrderStatus() {
 	}
 }
 
-// Delete order - Server API orqali
 async function deleteOrder() {
 	if (!selectedOrder) return
 
@@ -539,7 +747,6 @@ async function deleteOrder() {
 
 			if (result.success) {
 				console.log('✅ Order deleted successfully')
-				// Reload orders from server
 				await loadOrdersFromServer()
 				renderOrders()
 				closeOrderModal()
@@ -553,27 +760,6 @@ async function deleteOrder() {
 			showNotification("❌ Buyurtmani o'chirishda xatolik!", 'error')
 		}
 	}
-}
-
-// Render products
-function renderProducts() {
-	const container = document.getElementById('productsGrid')
-
-	container.innerHTML = products
-		.map(
-			product => `
-		  <div class="glass-effect rounded-xl p-6">
-			  <img src="${product.image}" alt="${
-				product.name
-			}" class="w-full h-48 object-cover rounded-lg mb-4">
-			  <h3 class="text-lg font-semibold text-white mb-2">${product.name}</h3>
-			  <p class="text-white/70 mb-2">Kategoriya: ${product.category}</p>
-			  <p class="text-white/70 mb-2">Omborda: ${product.stock} ta</p>
-			  <p class="text-white font-bold text-xl">${formatPrice(product.price)}</p>
-		  </div>
-	  `
-		)
-		.join('')
 }
 
 // Update statistics
@@ -609,13 +795,15 @@ function showNotification(message, type = 'info') {
 	}, 3000)
 }
 
-// Check for new orders periodically - Server API orqali
+// Check for new orders periodically
 function startOrderMonitoring() {
 	setInterval(async () => {
 		console.log('🔄 Checking for new orders from server...')
-		await loadOrdersFromServer() // Server dan qayta yuklash
-	}, 5000) // Har 5 soniyada tekshirish
+		await loadOrdersFromServer()
+	}, 5000)
 }
 
-// Global function to make it accessible from onclick
+// Global functions to make them accessible from onclick
 window.showOrderDetails = showOrderDetails
+window.editProduct = editProduct
+window.deleteProduct = deleteProduct

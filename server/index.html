@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechStore - Mahsulotlar</title>
+    <title> Mahsulotlar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes fadeInUp {
@@ -164,17 +164,21 @@
                         </div>
                         <!-- Cart Icon -->
                         <div class="relative cursor-pointer" id="cartButton">
-
-                            <svg class="w-6 h-10 text-gray-800 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path fill-rule="evenodd"
-                                    d="M4 4a1 1 0 0 1 1-1h1.5a1 1 0 0 1 .979.796L7.939 6H19a1 1 0 0 1 .979 1.204l-1.25 6a1 1 0 0 1-.979.796H9.605l.208 1H17a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L5.686 5H5a1 1 0 0 1-1-1Z"
-                                    clip-rule="evenodd" />
+                            <svg class="w-6 h-6 text-gray-800  aria-hidden=" true" xmlns="http://www.w3.org/2000/svg"
+                                width="30" height="30" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312" />
                             </svg>
 
                             <span id="cartCounter"
                                 class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
                         </div>
+                        <!-- <button id="refreshProductsBtn"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm flex items-center space-x-1 transition-colors">
+                            <span>🔄</span>
+                            <span>Yangilash</span>
+                        </button> -->
                     </div>
                 </div>
 
@@ -357,7 +361,7 @@
                 const response = await fetch(`${API_BASE}/orders`);
                 if (response.ok) {
                     document.getElementById('statusDot').className = 'w-3 h-3 bg-green-500 rounded-full';
-                    document.getElementById('statusText').textContent = 'Website ishlamoqda';
+                    document.getElementById('statusText').textContent = 'Server online';
                     return true;
                 } else {
                     throw new Error('Server response not ok');
@@ -370,68 +374,7 @@
             }
         }
 
-        // Data
-        const productsData = {
-            products: [
-                {
-                    id: 1,
-                    name: "iPhone 14 Pro",
-                    category: "telefon",
-                    price: 15000000,
-                    image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
-                    description: "Eng yangi iPhone modeli"
-                },
-                {
-                    id: 2,
-                    name: "Samsung Galaxy S23",
-                    category: "telefon",
-                    price: 12000000,
-                    image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=300&h=300&fit=crop",
-                    description: "Samsung flagman telefoni"
-                },
-                {
-                    id: 3,
-                    name: "MacBook Pro M2",
-                    category: "kompyuter",
-                    price: 25000000,
-                    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop",
-                    description: "Professional laptop"
-                },
-                {
-                    id: 4,
-                    name: "Dell XPS 13",
-                    category: "kompyuter",
-                    price: 18000000,
-                    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
-                    description: "Ultrabook kompyuter"
-                },
-                {
-                    id: 5,
-                    name: "Sony WH-1000XM4",
-                    category: "audio",
-                    price: 4500000,
-                    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
-                    description: "Noise cancelling quloqchin"
-                },
-                {
-                    id: 6,
-                    name: "AirPods Pro",
-                    category: "audio",
-                    price: 3200000,
-                    image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=300&h=300&fit=crop",
-                    description: "Apple simsiz quloqchin"
-                }
-            ],
-            categories: [
-                { id: "all", name: "Barchasi", icon: "🛍️" },
-                { id: "telefon", name: "Telefonlar", icon: "📱" },
-                { id: "kompyuter", name: "Kompyuterlar", icon: "💻" },
-                { id: "audio", name: "Audio", icon: "🎧" },
-                { id: "planshet", name: "Planshetlar", icon: "📱" },
-                { id: "kamera", name: "Kameralar", icon: "📷" },
-                { id: "soat", name: "Smart soatlar", icon: "⌚" }
-            ]
-        };
+        // Remove the hardcoded productsData object completely
 
         // Global variables
         let products = [];
@@ -443,18 +386,17 @@
         // Cart functionality
         let cart = [];
 
-        // Initialize app
+        // Initialize app - updated to load from server
         async function init() {
             log('Initializing app...');
 
             // Check server status
             await checkServerStatus();
 
-            setTimeout(() => {
-                products = productsData.products;
-                categories = productsData.categories;
-                filteredProducts = products;
+            // Load products from server
+            await loadProductsFromServer();
 
+            setTimeout(() => {
                 // Load cart from localStorage
                 loadCartFromStorage();
 
@@ -471,28 +413,51 @@
             }, 1000);
         }
 
-        // Load cart from localStorage
-        function loadCartFromStorage() {
+        // Load products from server API
+        async function loadProductsFromServer() {
             try {
-                const savedCart = localStorage.getItem('techstore_cart');
-                if (savedCart) {
-                    cart = JSON.parse(savedCart);
-                    log('Cart loaded from storage:', cart);
+                log('Loading products from server API...');
+
+                const response = await fetch('/api/products');
+                console.log('Response status:', response);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    products = result.data.products || [];
+                    categories = [
+                        { id: "all", name: "Barchasi", icon: "🛍️" },
+                        ...result.data.categories || []
+                    ];
+                    filteredProducts = products;
+
+                    log('✅ Products loaded from server:', products.length, 'products');
+                    log('✅ Categories loaded:', categories.length, 'categories');
+                } else {
+                    throw new Error(result.error || 'Failed to load products');
+                }
+
             } catch (error) {
-                log('Error loading cart from storage:', error);
-                cart = [];
+                log('❌ Error loading products from server:', error);
+                showNotification('❌ Mahsulotlarni yuklashda xatolik: ' + error.message, 'error');
+
+                // Fallback to empty data
+                products = [];
+                categories = [{ id: "all", name: "Barchasi", icon: "🛍️" }];
+                filteredProducts = [];
             }
         }
 
-        // Save cart to localStorage
-        function saveCartToStorage() {
-            try {
-                localStorage.setItem('techstore_cart', JSON.stringify(cart));
-                log('Cart saved to storage:', cart);
-            } catch (error) {
-                log('Error saving cart to storage:', error);
-            }
+        // Add refresh products function
+        async function refreshProducts() {
+            showNotification('📡 Mahsulotlar yangilanmoqda...', 'info');
+            await loadProductsFromServer();
+            renderCategories();
+            renderProducts();
+            showNotification('✅ Mahsulotlar yangilandi!', 'success');
         }
 
         // Format price
@@ -551,7 +516,7 @@
                         />
                         <div class="star-icon absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg">
                             <svg class="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00.951-.69l1.07-3.292z"></path>
                             </svg>
                         </div>
                     </div>
@@ -601,6 +566,41 @@
             selectedCategory = categoryId;
             renderCategories();
             filterProducts();
+        }
+
+        // Update the addToCart function to handle dynamic products
+        function addToCart(productId) {
+            log('Adding product to cart:', productId);
+
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                log('Product not found:', productId);
+                showNotification('Mahsulot topilmadi!', 'error');
+                return;
+            }
+
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+                log('Updated existing item quantity:', existingItem);
+            } else {
+                const newItem = {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    quantity: 1
+                };
+                cart.push(newItem);
+                log('Added new item to cart:', newItem);
+            }
+
+            saveCartToStorage();
+            updateCartCounter();
+            // showNotification(`${product.name} savatga qo'shildi!`, 'success');
+
+            log('Cart after adding:', cart);
         }
 
         // Setup event listeners
@@ -707,42 +707,39 @@
                 }
             });
 
+            // Add this in setupEventListeners function
+            const refreshProductsBtn = document.getElementById('refreshProductsBtn');
+            if (refreshProductsBtn) {
+                refreshProductsBtn.addEventListener('click', refreshProducts);
+            }
+
             log('Event listeners set up successfully');
         }
 
         // Add to cart
-        function addToCart(productId) {
-            log('Adding product to cart:', productId);
 
-            const product = products.find(p => p.id === productId);
-            if (!product) {
-                log('Product not found:', productId);
-                showNotification('Mahsulot topilmadi!', 'error');
-                return;
+        // Load cart from localStorage
+        function loadCartFromStorage() {
+            try {
+                const savedCart = localStorage.getItem('techstore_cart');
+                if (savedCart) {
+                    cart = JSON.parse(savedCart);
+                    log('Cart loaded from storage:', cart);
+                }
+            } catch (error) {
+                log('Error loading cart from storage:', error);
+                cart = [];
             }
+        }
 
-            const existingItem = cart.find(item => item.id === productId);
-
-            if (existingItem) {
-                existingItem.quantity += 1;
-                log('Updated existing item quantity:', existingItem);
-            } else {
-                const newItem = {
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image,
-                    quantity: 1
-                };
-                cart.push(newItem);
-                log('Added new item to cart:', newItem);
+        // Save cart to localStorage
+        function saveCartToStorage() {
+            try {
+                localStorage.setItem('techstore_cart', JSON.stringify(cart));
+                log('Cart saved to storage:', cart);
+            } catch (error) {
+                log('Error saving cart to storage:', error);
             }
-
-            saveCartToStorage();
-            updateCartCounter();
-            showNotification(`${product.name} savatga qo'shildi!`, 'success');
-
-            log('Cart after adding:', cart);
         }
 
         // Update cart counter
@@ -850,7 +847,7 @@
             saveCartToStorage();
             renderCartItems();
             updateCartCounter();
-            showNotification('Mahsulot savatdan olib tashlandi', 'info');
+            // showNotification('Mahsulot savatdan olib tashlandi', 'info');
         }
 
         // Clear cart
